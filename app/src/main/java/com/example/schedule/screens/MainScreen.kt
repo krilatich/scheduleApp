@@ -1,9 +1,12 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package com.example.schedule.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import android.app.DatePickerDialog
+import android.content.Context
+import android.widget.DatePicker
+import android.widget.Toast
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -28,18 +32,19 @@ import com.example.schedule.data.Lesson
 import com.example.schedule.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.util.*
 
+
+var calendar: Calendar = Calendar.getInstance()
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainScreen(navController: NavController) {
 
-    val daysOfWeek = listOf(
-        "Mo", "Tu", "Th", "We", "Fr", "Sa"
-    )
 
     val months = listOf(
         "January",
@@ -60,18 +65,23 @@ fun MainScreen(navController: NavController) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val calendar by remember { mutableStateOf(Calendar.getInstance()) }
-
-
     if (calendar.get(android.icu.util.Calendar.DAY_OF_WEEK) == 1) calendar.add(Calendar.DATE, 1)
-
     val pagerState = rememberPagerState(initialPage = calendar.get(Calendar.DAY_OF_WEEK) - 2)
 
+    calendar.add(Calendar.DATE, pagerState.currentPage - calendar.get(Calendar.DAY_OF_WEEK) + 2)
 
-    Scaffold(bottomBar = { NavigationBottomBar(navController = navController) }) {
+    val updater = remember { mutableStateOf(false) }
+
+    Scaffold(bottomBar = {
+        NavigationBottomBar(
+            navController = navController,
+            mLocalContext = LocalContext.current,
+            pagerState = pagerState
+        )
+    }) {
 
         Column() {
-
+            //Text(calendar.get(Calendar.DAY_OF_MONTH).toString())
 
             Column(
                 Modifier
@@ -127,7 +137,6 @@ fun MainScreen(navController: NavController) {
                                             )
                                             pagerState.animateScrollToPage(i - 2)
 
-
                                         }
 
                                     })
@@ -165,13 +174,12 @@ fun MainScreen(navController: NavController) {
             }
 
 
-
             HorizontalPager(
                 count = 6,
                 state = pagerState,
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier.wrapContentHeight()
-            ) { i ->
+            ) {
 
                 LessonsList(header, calendar)
 
@@ -300,8 +308,43 @@ fun Lesson(lesson: Lesson) {
 }
 
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun NavigationBottomBar(navController: NavController) {
+fun NavigationBottomBar(
+    mLocalContext: Context,
+    navController: NavController,
+    pagerState: PagerState
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val mDatePickerDialog = DatePickerDialog(
+        mLocalContext,
+        { _: DatePicker, mYearOfLife: Int, mMonthOfYear: Int, mDayOfMonth: Int ->
+
+            calendar.set(mYearOfLife, mMonthOfYear, mDayOfMonth)
+            if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+                calendar.add(Calendar.DATE, 1)
+            }
+
+            if (pagerState.currentPage == calendar.get(Calendar.DAY_OF_WEEK) - 2)
+                coroutineScope.launch {
+                    pagerState.scrollToPage(pagerState.currentPage + 1)
+                    pagerState.scrollToPage(pagerState.currentPage - 1)
+                }
+            else
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(calendar.get(Calendar.DAY_OF_WEEK) - 2)
+                }
+
+
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -311,7 +354,13 @@ fun NavigationBottomBar(navController: NavController) {
 
     ) {
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(onClick = {
+                mDatePickerDialog.show()
+
+            })
+        ) {
             Icon(
                 Icons.Filled.DateRange, contentDescription = "Date",
                 modifier = Modifier.size(25.dp),
@@ -338,6 +387,30 @@ fun NavigationBottomBar(navController: NavController) {
 
         }
     }
+}
+
+
+@Composable
+fun DateField(
+    mDate: MutableState<String>
+) {
+    val mContext = LocalContext.current
+    val mCalendar = Calendar.getInstance()
+
+    val mYear = mCalendar.get(Calendar.YEAR)
+    val mMonth = mCalendar.get(Calendar.MONTH)
+    val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    mCalendar.time = Date()
+
+
+    val mDatePickerDialog = DatePickerDialog(
+        mContext,
+        { _: DatePicker, mYearOfLife: Int, mMonthOfYear: Int, mDayOfMonth: Int ->
+            mDate.value = "$mDayOfMonth.${mMonthOfYear + 1}.$mYearOfLife"
+        }, mYear, mMonth, mDay
+    )
+
 }
 
 
