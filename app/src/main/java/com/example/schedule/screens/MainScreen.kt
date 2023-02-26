@@ -219,7 +219,7 @@ fun LessonsList(header: String, calendar: Calendar,navController: NavController)
     )
 
     LazyColumn(
-        Modifier.padding(start = 20.dp, end = 20.dp),
+        Modifier.padding(start = 20.dp, end = 20.dp,bottom = 50.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
@@ -237,7 +237,7 @@ fun LessonsList(header: String, calendar: Calendar,navController: NavController)
 
         item {
 
-            Spacer(Modifier.height(50.dp))
+            Spacer(Modifier.height(20.dp))
         }
 
     }
@@ -400,7 +400,10 @@ fun NavigationBottomBar(
 
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier =Modifier
+            .clickable(onClick = {
+                navController.navigate("menu_screen")
+            })) {
             Icon(
                 Icons.Filled.Menu, contentDescription = "Menu", modifier = Modifier.size(25.dp)
             )
