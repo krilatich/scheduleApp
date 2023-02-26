@@ -33,9 +33,6 @@ import com.example.schedule.ui.theme.ScheduleTheme
 @Composable
 fun StartScreen(navController: NavController) {
 
-    var chosenButton by remember { mutableStateOf(0) }
-
-
 
     Column(
         Modifier
@@ -46,204 +43,11 @@ fun StartScreen(navController: NavController) {
 
         Spacer(Modifier.height(200.dp))
         Text("Schedule", style = MaterialTheme.typography.h1,
-        modifier = Modifier.clickable(onClick = {navController.navigate("main_screen")}))
+            modifier = Modifier.clickable(onClick = { navController.navigate("main_screen") })
+        )
         Spacer(Modifier.height(25.dp))
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-
-            modifier = Modifier
-                .width(360.dp)
-                .clip(shape = RoundedCornerShape(20.dp))
-                .border(BorderStroke(width = 1.dp, Blue200), shape = RoundedCornerShape(20.dp))
-                .background(Color.White)
-                .padding(start = 20.dp, end = 20.dp)
-                .animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                )
-
-
-        ) {
-
-            if (chosenButton == 0) {
-
-
-                Spacer(Modifier.height(15.dp))
-
-                Text(
-                    "Choose a schedule!",
-                    style = MaterialTheme.typography.body1,
-                    color = Color.Gray
-                )
-                Spacer(Modifier.height(1.dp))
-
-                Button(
-                    onClick = {
-                        chosenButton = 1
-                    },
-                    Modifier
-                        .width(230.dp)
-                        .height(35.dp)
-                ) {
-                    Text("Groups", style = MaterialTheme.typography.body1)
-                }
-                Button(
-                    onClick = {
-                        chosenButton = 2
-                    },
-                    Modifier
-                        .width(230.dp)
-                        .height(35.dp)
-                ) {
-                    Text("Teachers", style = MaterialTheme.typography.body1)
-                }
-                Button(
-                    onClick = {
-                        chosenButton = 3
-                    },
-                    Modifier
-                        .width(230.dp)
-                        .height(35.dp)
-                ) {
-                    Text("Classrooms", style = MaterialTheme.typography.body1)
-                }
-
-                Spacer(Modifier.height(32.dp))
-            } else
-                if (chosenButton == 1) {
-                    Spacer(Modifier.height(1.dp))
-
-                    var text by remember { mutableStateOf("") }
-                    Text(
-                        "Groups",
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier
-                            .align(Alignment.Start)
-                            .padding(start = 15.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = text, onValueChange = { text = it },
-                        Modifier
-                            .border(BorderStroke(1.dp, Blue200), shape = RoundedCornerShape(10.dp))
-                            .height(50.dp)
-                            .clip(RoundedCornerShape(10.dp)), singleLine = true
-                    )
-
-
-
-                    Button(
-                        onClick = {},
-                        Modifier
-                            .width(100.dp)
-                            .height(35.dp)
-                    ) {
-                        Text(
-                            "Show",
-                            style = MaterialTheme.typography.body1,
-                            color = Color.White
-                        )
-                    }
-                    Spacer(Modifier.height(10.dp))
-
-                } else
-                    if (chosenButton == 2) {
-                        Spacer(Modifier.height(1.dp))
-
-                        var text by remember { mutableStateOf("") }
-                        Text(
-                            "Teachers",
-                            style = MaterialTheme.typography.body1,
-                            modifier = Modifier
-                                .align(Alignment.Start)
-                                .padding(start = 15.dp)
-                        )
-
-                        OutlinedTextField(
-                            value = text, onValueChange = { text = it },
-                            Modifier
-                                .border(
-                                    BorderStroke(1.dp, Blue200),
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .height(50.dp)
-                                .clip(RoundedCornerShape(10.dp)), singleLine = true
-                        )
-
-
-
-                        Button(
-                            onClick = {},
-                            Modifier
-                                .width(100.dp)
-                                .height(35.dp)
-                        ) {
-                            Text(
-                                "Show",
-                                style = MaterialTheme.typography.body1,
-                                color = Color.White
-                            )
-                        }
-                        Spacer(Modifier.height(10.dp))
-
-                    }
-                    else
-                        if (chosenButton == 3) {
-                            Spacer(Modifier.height(1.dp))
-
-                            var text by remember { mutableStateOf("") }
-                            Text(
-                                "Classrooms",
-                                style = MaterialTheme.typography.body1,
-                                modifier = Modifier
-                                    .align(Alignment.Start)
-                                    .padding(start = 15.dp)
-                            )
-
-                            OutlinedTextField(
-                                value = text, onValueChange = { text = it },
-                                Modifier
-                                    .border(
-                                        BorderStroke(1.dp, Blue200),
-                                        shape = RoundedCornerShape(10.dp)
-                                    )
-                                    .height(50.dp)
-                                    .clip(RoundedCornerShape(10.dp)), singleLine = true
-                            )
-
-
-
-                            Button(
-                                onClick = {},
-                                Modifier
-                                    .width(100.dp)
-                                    .height(35.dp)
-                            ) {
-                                Text(
-                                    "Show",
-                                    style = MaterialTheme.typography.body1,
-                                    color = Color.White
-                                )
-                            }
-                            Spacer(Modifier.height(10.dp))
-
-                        }
-
-
-        }
-
-        if (chosenButton != 0) {
-            Icon(
-                Icons.Default.ArrowBack, contentDescription = "back",
-                Modifier
-                    .clickable(onClick = { chosenButton = 0 })
-                    .align(Alignment.Start)
-            )
-        }
+        ScheduleChooser()
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -273,4 +77,218 @@ fun Pr() {
             StartScreen(navController = rememberNavController())
         }
     }
+}
+
+@Composable
+fun ScheduleChooser() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        modifier = Modifier
+            .width(360.dp)
+            .clip(shape = RoundedCornerShape(20.dp))
+            .border(BorderStroke(width = 1.dp, Blue200), shape = RoundedCornerShape(20.dp))
+            .background(Color.White)
+            .padding(start = 20.dp, end = 20.dp)
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+
+
+    ) {
+        var chosenButton by remember { mutableStateOf(0) }
+
+        if (chosenButton == 0) {
+
+
+            Spacer(Modifier.height(15.dp))
+
+            Text(
+                "Choose a schedule!",
+                style = MaterialTheme.typography.body1,
+                color = Color.Gray
+            )
+            Spacer(Modifier.height(1.dp))
+
+            Button(
+                onClick = {
+                    chosenButton = 1
+                },
+                Modifier
+                    .width(230.dp)
+                    .height(35.dp)
+            ) {
+                Text("Groups", style = MaterialTheme.typography.body1)
+            }
+            Button(
+                onClick = {
+                    chosenButton = 2
+                },
+                Modifier
+                    .width(230.dp)
+                    .height(35.dp)
+            ) {
+                Text("Teachers", style = MaterialTheme.typography.body1)
+            }
+            Button(
+                onClick = {
+                    chosenButton = 3
+                },
+                Modifier
+                    .width(230.dp)
+                    .height(35.dp)
+            ) {
+                Text("Classrooms", style = MaterialTheme.typography.body1)
+            }
+
+            Spacer(Modifier.height(32.dp))
+        } else
+            if (chosenButton == 1) {
+                Spacer(Modifier.height(1.dp))
+
+                var text by remember { mutableStateOf("") }
+
+                Row(modifier = Modifier.align(Alignment.Start)) {
+                    Icon(
+                        Icons.Default.ArrowBack, contentDescription = "back",
+                        Modifier
+                            .clickable(onClick = { chosenButton = 0 })
+
+                    )
+
+                    Text(
+                        "Groups",
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier
+                            .padding(start = 15.dp)
+                    )
+                }
+
+                OutlinedTextField(
+                    value = text, onValueChange = { text = it },
+                    Modifier
+                        .border(BorderStroke(1.dp, Blue200), shape = RoundedCornerShape(10.dp))
+                        .height(50.dp)
+                        .clip(RoundedCornerShape(10.dp)), singleLine = true
+                )
+
+
+
+                Button(
+                    onClick = {},
+                    Modifier
+                        .width(100.dp)
+                        .height(35.dp)
+                ) {
+                    Text(
+                        "Show",
+                        style = MaterialTheme.typography.body1,
+                        color = Color.White
+                    )
+                }
+                Spacer(Modifier.height(10.dp))
+
+            } else
+                if (chosenButton == 2) {
+                    Spacer(Modifier.height(1.dp))
+
+                    var text by remember { mutableStateOf("") }
+
+                    Row(modifier = Modifier.align(Alignment.Start)) {
+                        Icon(
+                            Icons.Default.ArrowBack, contentDescription = "back",
+                            Modifier
+                                .clickable(onClick = { chosenButton = 0 })
+
+                        )
+                        Text(
+                            "Teachers",
+                            style = MaterialTheme.typography.body1,
+                            modifier = Modifier
+                                .padding(start = 15.dp)
+                        )
+                    }
+
+                    OutlinedTextField(
+                        value = text, onValueChange = { text = it },
+                        Modifier
+                            .border(
+                                BorderStroke(1.dp, Blue200),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .height(50.dp)
+                            .clip(RoundedCornerShape(10.dp)), singleLine = true
+                    )
+
+
+
+                    Button(
+                        onClick = {},
+                        Modifier
+                            .width(100.dp)
+                            .height(35.dp)
+                    ) {
+                        Text(
+                            "Show",
+                            style = MaterialTheme.typography.body1,
+                            color = Color.White
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+
+                } else
+                    if (chosenButton == 3) {
+                        Spacer(Modifier.height(1.dp))
+
+                        var text by remember { mutableStateOf("") }
+
+                        Row(modifier = Modifier.align(Alignment.Start)) {
+                            Icon(
+                                Icons.Default.ArrowBack, contentDescription = "back",
+                                Modifier
+                                    .clickable(onClick = { chosenButton = 0 })
+
+                            )
+                            Text(
+                                "Classrooms",
+                                style = MaterialTheme.typography.body1,
+                                modifier = Modifier
+                                    .padding(start = 15.dp)
+                            )
+                        }
+
+                        OutlinedTextField(
+                            value = text, onValueChange = { text = it },
+                            Modifier
+                                .border(
+                                    BorderStroke(1.dp, Blue200),
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(10.dp)), singleLine = true
+                        )
+
+
+
+                        Button(
+                            onClick = {},
+                            Modifier
+                                .width(100.dp)
+                                .height(35.dp)
+                        ) {
+                            Text(
+                                "Show",
+                                style = MaterialTheme.typography.body1,
+                                color = Color.White
+                            )
+                        }
+                        Spacer(Modifier.height(10.dp))
+
+                    }
+    }
+
 }
