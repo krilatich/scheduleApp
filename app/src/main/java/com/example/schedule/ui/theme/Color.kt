@@ -11,7 +11,7 @@ val LightBlue = Color(0xFFF0FAFD)
 val Blue200 = Color(0xFF24629B)
 val MediumBlue = Color(0xFFD7F4FD)
 val Green200 = Color(0xFF95EAB2)
-val Green700 = Color(0xFF49BFA3)
+val Gray200 = Color(0xFF535353)
 
 
 val firstLessonColor_1 = Color(0xFFDFA09C)
