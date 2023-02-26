@@ -45,7 +45,6 @@ var calendar: Calendar = Calendar.getInstance()
 @Composable
 fun MainScreen(navController: NavController) {
 
-
     val months = listOf(
         "January",
         "February",
@@ -70,7 +69,6 @@ fun MainScreen(navController: NavController) {
 
     calendar.add(Calendar.DATE, pagerState.currentPage - calendar.get(Calendar.DAY_OF_WEEK) + 2)
 
-    val updater = remember { mutableStateOf(false) }
 
     Scaffold(bottomBar = {
         NavigationBottomBar(
@@ -109,7 +107,17 @@ fun MainScreen(navController: NavController) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
 
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "back")
+                        Icon(Icons.Outlined.ArrowBack,
+                            contentDescription = "back",
+                            modifier = Modifier.clickable(
+                                onClick = {
+                                    calendar.add(Calendar.DATE, -7)
+                                    coroutineScope.launch {
+                                        pagerState.scrollToPage(1)
+                                        pagerState.scrollToPage(0)
+                                    }
+                                }
+                            ))
 
 
                         val daysOfWeek = listOf(
@@ -164,7 +172,17 @@ fun MainScreen(navController: NavController) {
 
                         }
 
-                        Icon(Icons.Default.ArrowForward, contentDescription = "forward")
+                        Icon(Icons.Default.ArrowForward,
+                            contentDescription = "forward",
+                            modifier = Modifier.clickable(
+                                onClick = {
+                                    calendar.add(Calendar.DATE, 7)
+                                    coroutineScope.launch {
+                                        pagerState.scrollToPage(1)
+                                        pagerState.scrollToPage(0)
+                                    }
+                                }
+                            ))
 
                     }
 
@@ -181,7 +199,7 @@ fun MainScreen(navController: NavController) {
                 modifier = Modifier.wrapContentHeight()
             ) {
 
-                LessonsList(header, calendar)
+                LessonsList(header, calendar, navController)
 
             }
         }
@@ -190,7 +208,7 @@ fun MainScreen(navController: NavController) {
 }
 
 @Composable
-fun LessonsList(header: String, calendar: Calendar) {
+fun LessonsList(header: String, calendar: Calendar,navController: NavController) {
 
     val listLesson: List<Lesson> = listOf(
         Lesson(1), Lesson(
@@ -211,7 +229,9 @@ fun LessonsList(header: String, calendar: Calendar) {
 
         items(listLesson) { item ->
 
-            Lesson(item)
+            Lesson(item, modifier = Modifier.clickable(onClick = {
+                navController.navigate("lesson_screen/${10}")
+            }))
 
         }
 
@@ -227,7 +247,7 @@ fun LessonsList(header: String, calendar: Calendar) {
 
 
 @Composable
-fun Lesson(lesson: Lesson) {
+fun Lesson(lesson: Lesson,modifier: Modifier = Modifier) {
 
 
     val lessonTime = mapOf(
@@ -282,7 +302,7 @@ fun Lesson(lesson: Lesson) {
         Spacer(Modifier.width(20.dp))
 
         Column(
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .height(100.dp)
                 .shadow(elevation = 5.dp, shape = RoundedCornerShape(10.dp))
@@ -290,7 +310,7 @@ fun Lesson(lesson: Lesson) {
                 .border(BorderStroke(1.dp, Blue200), shape = RoundedCornerShape(10.dp))
                 .padding(20.dp), verticalArrangement = Arrangement.Center
         ) {
-            Text(lesson.subjectName, style = MaterialTheme.typography.h2, color = Color.Black)
+            Text(lesson.subjectName, style = MaterialTheme.typography.h2, color = Gray200)
 
             Text(
                 "${lesson.classroomNumber} ${lesson.typeOfClassroom}\n${lesson.groupNumber} ${lesson.subgroup}",
@@ -355,7 +375,8 @@ fun NavigationBottomBar(
     ) {
 
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.clickable(onClick = {
                 mDatePickerDialog.show()
 
@@ -387,30 +408,6 @@ fun NavigationBottomBar(
 
         }
     }
-}
-
-
-@Composable
-fun DateField(
-    mDate: MutableState<String>
-) {
-    val mContext = LocalContext.current
-    val mCalendar = Calendar.getInstance()
-
-    val mYear = mCalendar.get(Calendar.YEAR)
-    val mMonth = mCalendar.get(Calendar.MONTH)
-    val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
-
-    mCalendar.time = Date()
-
-
-    val mDatePickerDialog = DatePickerDialog(
-        mContext,
-        { _: DatePicker, mYearOfLife: Int, mMonthOfYear: Int, mDayOfMonth: Int ->
-            mDate.value = "$mDayOfMonth.${mMonthOfYear + 1}.$mYearOfLife"
-        }, mYear, mMonth, mDay
-    )
-
 }
 
 
