@@ -157,7 +157,6 @@ fun ScheduleChooser() {
                         Icons.Default.ArrowBack, contentDescription = "back",
                         Modifier
                             .clickable(onClick = { chosenButton = 0 })
-
                     )
 
                     Text(
