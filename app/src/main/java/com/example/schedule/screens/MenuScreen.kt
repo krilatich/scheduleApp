@@ -27,7 +27,7 @@ fun MenuScreen(navController: NavController) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(top = 20.dp,start = 20.dp, bottom = 40.dp,end = 20.dp ),
+            .padding(top = 20.dp, start = 20.dp, bottom = 40.dp, end = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
@@ -35,7 +35,7 @@ fun MenuScreen(navController: NavController) {
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
             Icon(
@@ -44,11 +44,9 @@ fun MenuScreen(navController: NavController) {
                         onClick = {
                             navController.navigate("main_screen")
                         }
-                    ))
-            Text(
-                "Menu", style = MaterialTheme.typography.h1
+                    )
             )
-            Spacer(Modifier.weight(1f))
+
             Text(
                 "example@mail.com", style = MaterialTheme.typography.h2
             )
@@ -56,8 +54,11 @@ fun MenuScreen(navController: NavController) {
         }
         Spacer(modifier = Modifier.height(100.dp))
 
+        Text(
+            "Menu", style = MaterialTheme.typography.h1
+        )
+        Spacer(Modifier.height(20.dp))
         ScheduleChooser()
-
         Spacer(Modifier.weight(1f))
 
         Text(
