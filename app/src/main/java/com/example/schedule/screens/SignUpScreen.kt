@@ -31,9 +31,7 @@ import com.example.schedule.ui.theme.Blue200
 import com.example.schedule.ui.theme.ScheduleTheme
 
 @Composable
-fun SignInScreen(navController: NavController) {
-
-
+fun SignUpScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
 
     Column(
@@ -42,13 +40,13 @@ fun SignInScreen(navController: NavController) {
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(140.dp))
         Text(
             "Schedule", style = MaterialTheme.typography.h1,
             modifier = Modifier.clickable(
                 onClick = { navController.navigate("main_screen") })
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
+
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,22 +60,33 @@ fun SignInScreen(navController: NavController) {
         ) {
 
             var loginInput by remember { mutableStateOf("") }
-            var passwordInput by remember {
-                mutableStateOf("")
-            }
-
+            var passwordInput by remember { mutableStateOf("") }
+            var userNameInput by remember { mutableStateOf("") }
+            val systemRole = "student"
+            var retypePasswordInput by remember { mutableStateOf("") }
 
             Row(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "Authorization", style = MaterialTheme.typography.h2,
+                    "Registration", style = MaterialTheme.typography.h2,
                     modifier = Modifier
                 )
-
             }
+            EntryField(
+                modifier = Modifier.fillMaxWidth(),
+                value = userNameInput,
+                onValueChange = { userNameInput = it },
+                label = "Username",
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                ),
+            )
+
 
             EntryField(
                 modifier = Modifier.fillMaxWidth(),
@@ -98,6 +107,21 @@ fun SignInScreen(navController: NavController) {
                 onValueChange = { passwordInput = it },
                 label = "Password",
                 keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Password
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {focusManager.moveFocus(FocusDirection.Down)}
+                ),
+                visualTransformation = PasswordVisualTransformation()
+            )
+
+            EntryField(
+                modifier = Modifier.fillMaxWidth(),
+                value = retypePasswordInput,
+                onValueChange = { retypePasswordInput = it },
+                label = "Retype password",
+                keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Password
                 ),
@@ -115,46 +139,42 @@ fun SignInScreen(navController: NavController) {
                     .height(35.dp)
             ) {
                 Text(
-                    "Enter",
+                    "Confirm",
                     style = MaterialTheme.typography.body1,
                     color = Color.White
                 )
             }
         }
+
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            "Do not have an account?", style = MaterialTheme.typography.body1,
+            "Already have an account?", style = MaterialTheme.typography.body1,
             color = Color.Gray
         )
         Text(
-            "Register",
+            "Login",
             style = MaterialTheme.typography.body1,
             color = MaterialTheme.colors.primary,
             modifier = Modifier
                 .clickable(onClick = {
-                    navController.navigate("signUp_screen")
+                    navController.navigate("signIn_screen")
                 })
         )
 
-
     }
-
 
 }
 
 
-
-
-
 @Preview
 @Composable
-fun Pr3() {
+fun Pr9() {
     ScheduleTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
-            SignInScreen(navController = rememberNavController())
+            SignUpScreen(navController = rememberNavController())
         }
     }
 }

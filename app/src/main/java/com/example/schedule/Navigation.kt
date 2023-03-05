@@ -30,6 +30,9 @@ fun Navigation(){
         composable(Screen.MenuScreen.route){
             MenuScreen(navController = navController)
         }
+        composable(Screen.SignUpScreen.route){
+            SignUpScreen(navController = navController)
+        }
 
         composable("${Screen.LessonScreen.route}/{lessonId}", arguments = listOf(
             navArgument("lessonId"){type = NavType.IntType}
