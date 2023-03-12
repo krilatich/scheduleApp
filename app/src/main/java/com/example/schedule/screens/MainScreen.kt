@@ -2,10 +2,11 @@
 
 package com.example.schedule.screens
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
+import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,21 +30,29 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.schedule.data.Lesson
+import com.example.schedule.data.ScheduleBody
+import com.example.schedule.network.ScheduleRepository
 import com.example.schedule.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.util.*
 
 
 var calendar: Calendar = Calendar.getInstance()
 
+val lessons = mutableListOf<Lesson>()
+
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController, scheduleType: String, id: String) {
+
+
+    Log.d("mth", calendar.get(Calendar.MONTH).toString())
 
     val months = listOf(
         "January",
@@ -60,9 +69,55 @@ fun MainScreen(navController: NavController) {
         "December",
     )
 
-    val header = "Schedule for group"
+
+    val header = "Schedule for $scheduleType"
 
     val coroutineScope = rememberCoroutineScope()
+
+    GlobalScope.launch {
+
+        val schedule: ScheduleBody?
+
+        val calendarClone = calendar.clone() as Calendar
+        calendarClone.add(Calendar.DATE, 7)
+
+        when (scheduleType) {
+
+            "group" -> {
+                schedule = ScheduleRepository().getScheduleGroup(
+                    weekStart = parseDate(calendar), weekEnd = parseDate(calendarClone), id = id
+                )
+            }
+            "teacher" -> {
+                schedule = ScheduleRepository().getScheduleTeacher(
+                    weekStart = parseDate(calendar), weekEnd = parseDate(calendarClone), id = id
+                )
+            }
+            else -> {
+                schedule = ScheduleRepository().getScheduleClassroom(
+                    weekStart = parseDate(calendar), weekEnd = parseDate(calendarClone), id = id
+                )
+            }
+
+        }
+
+        if (schedule != null) {
+
+            for (i in 1..8) {
+                for (sc in schedule.schedule) if (sc.timeslot == i) lessons.add(
+                    Lesson(
+                        subjectName = sc.lesson,
+                        classroomNumber = sc.classroom,
+                        typeOfLesson = sc.type_of_lesson,
+                        groupNumber = sc.group,
+                        subgroup = sc.subgroup ?: "",
+                        number = sc.timeslot
+                    )
+                )
+            }
+
+        }
+    }
 
     if (calendar.get(android.icu.util.Calendar.DAY_OF_WEEK) == 1) calendar.add(Calendar.DATE, 1)
     val pagerState = rememberPagerState(initialPage = calendar.get(Calendar.DAY_OF_WEEK) - 2)
@@ -109,15 +164,14 @@ fun MainScreen(navController: NavController) {
 
                         Icon(Icons.Outlined.ArrowBack,
                             contentDescription = "back",
-                            modifier = Modifier.clickable(
-                                onClick = {
-                                    calendar.add(Calendar.DATE, -7)
-                                    coroutineScope.launch {
-                                        pagerState.scrollToPage(1)
-                                        pagerState.scrollToPage(0)
-                                    }
+                            modifier = Modifier.clickable(onClick = {
+                                calendar.add(Calendar.DATE, -7)
+                                coroutineScope.launch {
+                                    pagerState.scrollToPage(1)
+                                    pagerState.scrollToPage(0)
                                 }
-                            ))
+                            })
+                        )
 
 
                         val daysOfWeek = listOf(
@@ -174,15 +228,14 @@ fun MainScreen(navController: NavController) {
 
                         Icon(Icons.Default.ArrowForward,
                             contentDescription = "forward",
-                            modifier = Modifier.clickable(
-                                onClick = {
-                                    calendar.add(Calendar.DATE, 7)
-                                    coroutineScope.launch {
-                                        pagerState.scrollToPage(1)
-                                        pagerState.scrollToPage(0)
-                                    }
+                            modifier = Modifier.clickable(onClick = {
+                                calendar.add(Calendar.DATE, 7)
+                                coroutineScope.launch {
+                                    pagerState.scrollToPage(1)
+                                    pagerState.scrollToPage(0)
                                 }
-                            ))
+                            })
+                        )
 
                     }
 
@@ -199,7 +252,7 @@ fun MainScreen(navController: NavController) {
                 modifier = Modifier.wrapContentHeight()
             ) {
 
-                LessonsList(header, calendar, navController)
+                LessonsList(header, calendar, navController, lessons)
 
             }
         }
@@ -208,18 +261,13 @@ fun MainScreen(navController: NavController) {
 }
 
 @Composable
-fun LessonsList(header: String, calendar: Calendar,navController: NavController) {
+fun LessonsList(
+    header: String, calendar: Calendar, navController: NavController, listLesson: List<Lesson>
+) {
 
-    val listLesson: List<Lesson> = listOf(
-        Lesson(1), Lesson(
-            2, subjectName = "", subgroup = "", classroomNumber = "", typeOfClassroom = ""
-        ), Lesson(3), Lesson(
-            4, subjectName = "", subgroup = "", classroomNumber = "", typeOfClassroom = ""
-        ), Lesson(5), Lesson(6), Lesson(7)
-    )
 
     LazyColumn(
-        Modifier.padding(start = 20.dp, end = 20.dp,bottom = 50.dp),
+        Modifier.padding(start = 20.dp, end = 20.dp, bottom = 50.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
@@ -247,7 +295,7 @@ fun LessonsList(header: String, calendar: Calendar,navController: NavController)
 
 
 @Composable
-fun Lesson(lesson: Lesson,modifier: Modifier = Modifier) {
+fun Lesson(lesson: Lesson, modifier: Modifier = Modifier) {
 
 
     val lessonTime = mapOf(
@@ -313,7 +361,7 @@ fun Lesson(lesson: Lesson,modifier: Modifier = Modifier) {
             Text(lesson.subjectName, style = MaterialTheme.typography.h2, color = Gray200)
 
             Text(
-                "${lesson.classroomNumber} ${lesson.typeOfClassroom}\n${lesson.groupNumber} ${lesson.subgroup}",
+                "${lesson.classroomNumber} ${lesson.typeOfLesson}\n${lesson.groupNumber} ${lesson.subgroup}",
                 style = MaterialTheme.typography.body1,
                 color = Color.Gray,
 
@@ -331,9 +379,7 @@ fun Lesson(lesson: Lesson,modifier: Modifier = Modifier) {
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun NavigationBottomBar(
-    mLocalContext: Context,
-    navController: NavController,
-    pagerState: PagerState
+    mLocalContext: Context, navController: NavController, pagerState: PagerState
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -347,15 +393,13 @@ fun NavigationBottomBar(
                 calendar.add(Calendar.DATE, 1)
             }
 
-            if (pagerState.currentPage == calendar.get(Calendar.DAY_OF_WEEK) - 2)
-                coroutineScope.launch {
-                    pagerState.scrollToPage(pagerState.currentPage + 1)
-                    pagerState.scrollToPage(pagerState.currentPage - 1)
-                }
-            else
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(calendar.get(Calendar.DAY_OF_WEEK) - 2)
-                }
+            if (pagerState.currentPage == calendar.get(Calendar.DAY_OF_WEEK) - 2) coroutineScope.launch {
+                pagerState.scrollToPage(pagerState.currentPage + 1)
+                pagerState.scrollToPage(pagerState.currentPage - 1)
+            }
+            else coroutineScope.launch {
+                pagerState.animateScrollToPage(calendar.get(Calendar.DAY_OF_WEEK) - 2)
+            }
 
 
         },
@@ -400,10 +444,12 @@ fun NavigationBottomBar(
 
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier =Modifier
-            .clickable(onClick = {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(onClick = {
                 navController.navigate("menu_screen")
-            })) {
+            })
+        ) {
             Icon(
                 Icons.Filled.Menu, contentDescription = "Menu", modifier = Modifier.size(25.dp)
             )
@@ -414,14 +460,35 @@ fun NavigationBottomBar(
 }
 
 
-@Composable
-@Preview
-fun PreV() {
-    ScheduleTheme() {
-        Surface(
-            modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
-        ) {
-            MainScreen(navController = rememberNavController())
-        }
+
+
+fun parseDate(calendar: Calendar) =
+    if (calendar.get(Calendar.MONTH) < 10 && calendar.get(Calendar.DAY_OF_MONTH) > 10) {
+
+        "${calendar.get(Calendar.YEAR)}-0${calendar.get(Calendar.MONTH) + 1}-${
+            calendar.get(
+                Calendar.DAY_OF_MONTH
+            )
+        }"
+
+    } else if (calendar.get(Calendar.DAY_OF_MONTH) < 10 && calendar.get(Calendar.MONTH) > 10) {
+
+        "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}-0${
+            calendar.get(
+                Calendar.DAY_OF_MONTH
+            )
+        }"
+
+    } else if (calendar.get(Calendar.DAY_OF_MONTH) < 10 && calendar.get(Calendar.MONTH) < 10) {
+        "${calendar.get(Calendar.YEAR)}-0${calendar.get(Calendar.MONTH) + 1}-0${
+            calendar.get(
+                Calendar.DAY_OF_MONTH
+            )
+        }"
+    } else {
+        "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}-0${
+            calendar.get(
+                Calendar.DAY_OF_MONTH
+            )
+        }"
     }
-}

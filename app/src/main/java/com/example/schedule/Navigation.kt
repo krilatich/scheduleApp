@@ -11,39 +11,52 @@ import com.example.schedule.screens.*
 
 
 @Composable
-fun Navigation(){
+fun Navigation() {
 
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.StartScreen.route){
-        composable(Screen.StartScreen.route){
+    NavHost(navController = navController, startDestination = Screen.StartScreen.route) {
+        composable(Screen.StartScreen.route) {
             StartScreen(navController = navController)
         }
 
-        composable(Screen.SignInScreen.route){
+        composable(Screen.SignInScreen.route) {
             SignInScreen(navController = navController)
         }
 
-        composable(Screen.MainScreen.route){
-            MainScreen(navController = navController)
+        composable(Screen.ProfileScreen.route) {
+            ProfileScreen(navController = navController)
         }
 
-        composable(Screen.MenuScreen.route){
+        composable(Screen.AfterSignUpScreen.route) {
+            AfterSignUpScreen(navController = navController)
+        }
+
+        composable("${Screen.MainScreen.route}/{schedule_type}/{id}", arguments = listOf(
+            navArgument("id") { type = NavType.StringType },
+            navArgument("schedule_type") { type = NavType.StringType }
+        )
+        ) {
+            val id = it.arguments?.getString("id")!!
+            val scheduleType = it.arguments?.getString("schedule_type")!!
+            MainScreen(navController = navController, scheduleType = scheduleType, id = id)
+        }
+
+        composable(Screen.MenuScreen.route) {
             MenuScreen(navController = navController)
         }
-        composable(Screen.SignUpScreen.route){
+        composable(Screen.SignUpScreen.route) {
             SignUpScreen(navController = navController)
         }
 
         composable("${Screen.LessonScreen.route}/{lessonId}", arguments = listOf(
-            navArgument("lessonId"){type = NavType.IntType}
-        )){
+            navArgument("lessonId") { type = NavType.IntType }
+        )) {
             val lessonId = it.arguments?.getInt("lessonId")!!
-            LessonScreen(navController = navController,lessonId)
+            LessonScreen(navController = navController, lessonId)
         }
 
 
     }
-
 
 
 }

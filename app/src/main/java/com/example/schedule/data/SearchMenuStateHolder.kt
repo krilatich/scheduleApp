@@ -2,21 +2,15 @@ package com.example.schedule.data
 
 import androidx.compose.runtime.*
 
-class SearchMenuStateHolder {
+class SearchMenuStateHolder<T>() {
 
     var value by mutableStateOf("")
 
-    var items = listOf<String>()
-
-    fun updateItems(list:List<String>){
-
-        items = list
-
-    }
+    var items = listOf<T>()
 
 }
 
 @Composable
-fun rememberSearchMenuStateHolder() = remember {
-    SearchMenuStateHolder()
+fun <T>rememberSearchMenuStateHolder() = remember {
+    SearchMenuStateHolder<T>()
 }

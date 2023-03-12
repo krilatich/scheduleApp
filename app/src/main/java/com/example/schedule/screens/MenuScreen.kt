@@ -48,7 +48,10 @@ fun MenuScreen(navController: NavController) {
             )
 
             Text(
-                "example@mail.com", style = MaterialTheme.typography.h2
+                "example@mail.com", style = MaterialTheme.typography.h2,
+                modifier = Modifier.clickable(onClick = {
+                    navController.navigate("profile_screen")
+                })
             )
 
         }
@@ -58,7 +61,7 @@ fun MenuScreen(navController: NavController) {
             "Menu", style = MaterialTheme.typography.h1
         )
         Spacer(Modifier.height(20.dp))
-        ScheduleChooser()
+        ScheduleChooser(navController)
         Spacer(Modifier.weight(1f))
 
         Text(

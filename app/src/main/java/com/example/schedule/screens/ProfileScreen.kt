@@ -1,5 +1,6 @@
 package com.example.schedule.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,35 +25,62 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.schedule.EntryField
-import com.example.schedule.data.LoginBody
-import com.example.schedule.data.RegisterBody
+import com.example.schedule.SearchMenu
+import com.example.schedule.data.*
 import com.example.schedule.network.AuthRepository
 import com.example.schedule.network.Network
 import com.example.schedule.network.UserRepository
 import com.example.schedule.ui.theme.Blue200
 import com.example.schedule.ui.theme.ScheduleTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-@Composable
-fun SignInScreen(navController: NavController) {
 
+@SuppressLint("CoroutineCreationDuringComposition")
+@Composable
+fun ProfileScreen(navController: NavController) {
+
+    var isUpdated by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    var loginInput by remember { mutableStateOf("") }
+    var passwordInput by remember { mutableStateOf(Network.password.toString()) }
+    var userNameInput by remember { mutableStateOf("") }
+    val stateHolder = rememberSearchMenuStateHolder<Group>()
+
+    if (!isUpdated) coroutineScope.launch {
+        val profile = UserRepository().getProfile()
+        profile?.let {
+            userNameInput = it.userName
+            loginInput = it.email
+            stateHolder.value = (it.group ?: 0).toString()
+        }
+        isUpdated = true
+    }
 
     val focusManager = LocalFocusManager.current
+    var errors by remember {
+        mutableStateOf(
+            ErrorBody(
+                status = false, message = "", errors = Errors(listOf(), listOf(), listOf())
+            )
+        )
+    }
     val openDialog = remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf("") }
 
     Column(
         Modifier
             .fillMaxSize()
             .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(140.dp))
         Text(
             "Schedule",
             style = MaterialTheme.typography.h1,
             modifier = Modifier.clickable(onClick = { navController.navigate("main_screen") })
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
+
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -65,23 +93,24 @@ fun SignInScreen(navController: NavController) {
                 .padding(20.dp)
         ) {
 
-            var loginInput by remember { mutableStateOf("") }
-            var passwordInput by remember {
-                mutableStateOf("")
-            }
-            val coroutineScope = rememberCoroutineScope()
-
-
             Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "Authorization", style = MaterialTheme.typography.h2, modifier = Modifier
+                    "Profile", style = MaterialTheme.typography.h2, modifier = Modifier
                 )
-
             }
+            EntryField(
+                modifier = Modifier.fillMaxWidth(),
+                value = userNameInput,
+                onValueChange = { userNameInput = it },
+                label = "Username",
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+            )
+
 
             EntryField(
                 modifier = Modifier.fillMaxWidth(),
@@ -89,12 +118,15 @@ fun SignInScreen(navController: NavController) {
                 onValueChange = { loginInput = it },
                 label = "Email",
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
                 ),
                 keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
             )
 
-            EntryField(modifier = Modifier.fillMaxWidth(),
+            SearchMenu(stateHolder)
+
+            EntryField(
+                modifier = Modifier.fillMaxWidth(),
                 value = passwordInput,
                 onValueChange = { passwordInput = it },
                 label = "Password",
@@ -102,51 +134,40 @@ fun SignInScreen(navController: NavController) {
                     imeAction = ImeAction.Done, keyboardType = KeyboardType.Password
                 ),
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                visualTransformation = PasswordVisualTransformation())
+                visualTransformation = PasswordVisualTransformation()
+            )
             Spacer(Modifier.height(1.dp))
 
             Button(
                 onClick = {
-
                     coroutineScope.launch {
-                        val result = AuthRepository().login(
-                            LoginBody(
-                                email = loginInput,
-                                password = passwordInput,
+                        if (passwordInput.isNotBlank()) {
+                            val result = UserRepository().putProfile(
+                                Profile(
+                                    email = loginInput,
+                                    password = passwordInput,
+                                    group = if (stateHolder.value.isBlank()) 0
+                                    else stateHolder.value.toInt(),
+                                    userName = userNameInput
+                                )
                             )
-                        )
-                        if (result != null) {
-                            error = result.message
-                            openDialog.value = true
-                        } else {
-                            Network.password = passwordInput
-                            val profile = UserRepository().getProfile()
-                            if (profile != null) navController.navigate("main_screen/group/${profile.group}")
+                            if (result != null) {
+                                errors = result
+                                openDialog.value = true
+                            }
+                            else Network.password = passwordInput
                         }
                     }
-
                 },
                 Modifier
                     .width(100.dp)
                     .height(35.dp)
             ) {
                 Text(
-                    "Enter", style = MaterialTheme.typography.body1, color = Color.White
+                    "Confirm", style = MaterialTheme.typography.body1, color = Color.White
                 )
             }
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            "Do not have an account?", style = MaterialTheme.typography.body1, color = Color.Gray
-        )
-        Text(
-            "Register",
-            style = MaterialTheme.typography.body1,
-            color = MaterialTheme.colors.primary,
-            modifier = Modifier.clickable(onClick = {
-                    navController.navigate("signUp_screen")
-                })
-        )
 
 
     }
@@ -155,26 +176,24 @@ fun SignInScreen(navController: NavController) {
         openDialog.value = false
     }, title = { Text(text = "Ошибки") }, text = {
         Column() {
-            Text(error, style = MaterialTheme.typography.h3)
+            Text(text = errors.message)
         }
     }, buttons = {
         Button(onClick = { openDialog.value = false }) {
             Text("OK", style = MaterialTheme.typography.h1)
         }
     })
-
-
 }
-
 
 @Preview
 @Composable
-fun Pr3() {
+fun Prev090() {
     ScheduleTheme {
+        // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
         ) {
-            SignInScreen(navController = rememberNavController())
+            ProfileScreen(navController = rememberNavController())
         }
     }
 }

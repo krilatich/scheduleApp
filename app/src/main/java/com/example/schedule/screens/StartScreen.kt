@@ -27,13 +27,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.schedule.SearchMenu
+import com.example.schedule.data.Classroom
+import com.example.schedule.data.Group
+import com.example.schedule.data.Teacher
 import com.example.schedule.data.rememberSearchMenuStateHolder
+import com.example.schedule.network.Network
 import com.example.schedule.ui.theme.Blue200
 import com.example.schedule.ui.theme.ScheduleTheme
 
 @Composable
 fun StartScreen(navController: NavController) {
-
 
     Column(
         Modifier
@@ -49,7 +52,7 @@ fun StartScreen(navController: NavController) {
             modifier = Modifier.clickable(onClick = { navController.navigate("main_screen") })
         )
 
-        ScheduleChooser()
+        ScheduleChooser(navController)
 
 
         Box(Modifier.fillMaxSize()) {
@@ -100,7 +103,7 @@ fun Pr() {
 }
 
 @Composable
-fun ScheduleChooser() {
+fun ScheduleChooser(navController: NavController) {
 
     val focusManager = LocalFocusManager.current
 
@@ -190,11 +193,13 @@ fun ScheduleChooser() {
                     )
                 }
 
-                val stateHolder = rememberSearchMenuStateHolder()
+                val stateHolder = rememberSearchMenuStateHolder<Group>()
                 SearchMenu(stateHolder)
 
                 Button(
-                    onClick = {},
+                    onClick = {
+                              navController.navigate("main_screen/group/${Network.groupId}")
+                    },
                     Modifier
                         .width(100.dp)
                         .height(35.dp)
@@ -228,12 +233,14 @@ fun ScheduleChooser() {
                     )
                 }
 
-                val stateHolder = rememberSearchMenuStateHolder()
+                val stateHolder = rememberSearchMenuStateHolder<Teacher>()
                 SearchMenu(stateHolder)
 
 
                 Button(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate("main_screen/teacher/${Network.groupId}")
+                    },
                     Modifier
                         .width(100.dp)
                         .height(35.dp)
@@ -267,12 +274,14 @@ fun ScheduleChooser() {
                     )
                 }
 
-                val stateHolder = rememberSearchMenuStateHolder()
+                val stateHolder = rememberSearchMenuStateHolder<Classroom>()
                 SearchMenu(stateHolder)
 
 
                 Button(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate("main_screen/classroom/${Network.groupId}")
+                    },
                     Modifier
                         .width(100.dp)
                         .height(35.dp)
