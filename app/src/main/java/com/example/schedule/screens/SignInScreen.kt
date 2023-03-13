@@ -32,6 +32,7 @@ import com.example.schedule.network.UserRepository
 import com.example.schedule.ui.theme.Blue200
 import com.example.schedule.ui.theme.ScheduleTheme
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @Composable
 fun SignInScreen(navController: NavController) {
@@ -119,6 +120,7 @@ fun SignInScreen(navController: NavController) {
                             error = result.message
                             openDialog.value = true
                         } else {
+                            Network.email = loginInput
                             Network.password = passwordInput
                             val profile = UserRepository().getProfile()
                             if (profile != null) navController.navigate("main_screen/group/${profile.group}")

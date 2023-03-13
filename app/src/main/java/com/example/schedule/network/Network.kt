@@ -2,6 +2,7 @@ package com.example.schedule.network
 
 import com.example.schedule.data.ErrorBody
 import com.example.schedule.data.Errors
+import com.example.schedule.data.Lesson
 import com.example.vasilyev.network.AuthApi
 import com.example.vasilyev.network.MenuApi
 import com.example.vasilyev.network.ScheduleApi
@@ -38,7 +39,11 @@ object Network {
 
     var password:String? = null
 
-    var groupId = ""
+    var groupId:String? = null
+
+    var email:String? = null
+
+    var lesson: Lesson? = null
 
     fun getAuthApi():AuthApi = retrofit.create(AuthApi::class.java)
 

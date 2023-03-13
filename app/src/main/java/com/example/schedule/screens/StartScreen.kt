@@ -198,6 +198,7 @@ fun ScheduleChooser(navController: NavController) {
 
                 Button(
                     onClick = {
+                                if(Network.groupId!=null)
                               navController.navigate("main_screen/group/${Network.groupId}")
                     },
                     Modifier
@@ -239,6 +240,7 @@ fun ScheduleChooser(navController: NavController) {
 
                 Button(
                     onClick = {
+                        if(Network.groupId!=null)
                         navController.navigate("main_screen/teacher/${Network.groupId}")
                     },
                     Modifier
@@ -280,6 +282,7 @@ fun ScheduleChooser(navController: NavController) {
 
                 Button(
                     onClick = {
+                        if(Network.groupId!=null)
                         navController.navigate("main_screen/classroom/${Network.groupId}")
                     },
                     Modifier

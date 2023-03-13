@@ -165,6 +165,7 @@ fun SignUpScreen(navController: NavController) {
                                 errors = result
                                 openDialog.value = true
                             } else {
+                                Network.email = loginInput
                                 Network.password = passwordInput
                                 navController.navigate("after_signUp_screen")
                             }

@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,10 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.schedule.network.AuthRepository
+import com.example.schedule.network.Network
 import com.example.schedule.ui.theme.ScheduleTheme
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuScreen(navController: NavController) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         Modifier
@@ -42,13 +49,14 @@ fun MenuScreen(navController: NavController) {
                 Icons.Default.ArrowBack, contentDescription = "back", modifier = Modifier
                     .clickable(
                         onClick = {
-                            navController.navigate("main_screen")
+                            navController.navigate("main_screen/group/${Network.groupId}")
                         }
                     )
             )
 
+            if(Network.email!=null)
             Text(
-                "example@mail.com", style = MaterialTheme.typography.h2,
+                Network.email.toString(), style = MaterialTheme.typography.h2,
                 modifier = Modifier.clickable(onClick = {
                     navController.navigate("profile_screen")
                 })
@@ -64,6 +72,7 @@ fun MenuScreen(navController: NavController) {
         ScheduleChooser(navController)
         Spacer(Modifier.weight(1f))
 
+        if(Network.email!=null)
         Text(
             "Log out",
             color = Color.Red,
@@ -72,8 +81,25 @@ fun MenuScreen(navController: NavController) {
                 fontWeight = FontWeight.SemiBold
             ),
             modifier = Modifier
-                .clickable(onClick = { navController.navigate("start_screen") })
+                .clickable(onClick = {
+                    coroutineScope.launch{
+                        AuthRepository().logout()
+                    }
+                    navController.navigate("start_screen") })
         )
+        else
+            Text(
+                "Sign In",
+                color = MaterialTheme.colors.primary,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier
+                    .clickable(onClick = {
+                        navController.navigate("signIn_screen") })
+            )
+
     }
 
 

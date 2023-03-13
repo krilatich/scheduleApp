@@ -19,12 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.schedule.data.Lesson
+import com.example.schedule.network.Network
 import com.example.schedule.ui.theme.Gray200
 import com.example.schedule.ui.theme.ScheduleTheme
 
 @Composable
-fun LessonScreen(navController: NavController, lessonId: Int) {
-
+fun LessonScreen(navController: NavController) {
 
     val lesson: Lesson = Lesson(number = 1, subjectName = "Алгоритмы и структуры данных")
 
@@ -48,7 +48,7 @@ fun LessonScreen(navController: NavController, lessonId: Int) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "back", modifier = Modifier
                         .clickable(
                             onClick = {
-                                navController.navigate("main_screen")
+                                navController.navigate("main_screen/group/${Network.groupId}")
                             }
                         ))
                     Text(
@@ -116,7 +116,7 @@ fun Pre() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
-            LessonScreen(navController = rememberNavController(), 10)
+            LessonScreen(navController = rememberNavController())
         }
     }
 }

@@ -48,11 +48,8 @@ fun Navigation() {
             SignUpScreen(navController = navController)
         }
 
-        composable("${Screen.LessonScreen.route}/{lessonId}", arguments = listOf(
-            navArgument("lessonId") { type = NavType.IntType }
-        )) {
-            val lessonId = it.arguments?.getInt("lessonId")!!
-            LessonScreen(navController = navController, lessonId)
+        composable(Screen.LessonScreen.route) {
+            LessonScreen(navController = navController)
         }
 
 
