@@ -46,11 +46,10 @@ var lessons = Lessons()
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MainScreen(navController: NavController, scheduleType: String, id: String) {
-
-    val calendar: Calendar = Calendar.getInstance()
-
+    val calendar by remember { mutableStateOf(
+        Calendar.getInstance())
+    }
     Log.d("mth", calendar.get(Calendar.MONTH).toString())
-
     val months = listOf(
         "January",
         "February",
@@ -65,24 +64,20 @@ fun MainScreen(navController: NavController, scheduleType: String, id: String) {
         "November",
         "December",
     )
-
-    var isUpdated by remember { mutableStateOf(false) }
-
     val header = "Schedule for $scheduleType"
-
     val coroutineScope = rememberCoroutineScope()
-
     if (calendar.get(android.icu.util.Calendar.DAY_OF_WEEK) == 1) calendar.add(Calendar.DATE, 1)
     val pagerState = rememberPagerState(initialPage = calendar.get(Calendar.DAY_OF_WEEK) - 2)
-
     calendar.add(Calendar.DATE, pagerState.currentPage - calendar.get(Calendar.DAY_OF_WEEK) + 2)
 
+    var isUpdated by remember { mutableStateOf(false) }
     if (!isUpdated) {
         coroutineScope.launch {
 
             val calendarClone = calendar.clone() as Calendar
             calendarClone.add(Calendar.DATE, 6)
 
+            Log.d("date", parseDate(calendar)+ parseDate(calendarClone))
             when (scheduleType) {
 
                 "group" -> {
@@ -146,158 +141,156 @@ fun MainScreen(navController: NavController, scheduleType: String, id: String) {
             }
         }
 
-    isUpdated = true
-}
+        isUpdated = true
+    }
 
-Scaffold(bottomBar = {
-    NavigationBottomBar(
-        navController = navController,
-        mLocalContext = LocalContext.current,
-        pagerState = pagerState,
-        calendar = calendar
-    )
-}) {
+    Scaffold(bottomBar = {
+        NavigationBottomBar(
+            navController = navController,
+            mLocalContext = LocalContext.current,
+            pagerState = pagerState,
+            calendar = calendar
+        )
+    }) {
 
-    Column() {
-        //Text(calendar.get(Calendar.DAY_OF_MONTH).toString())
-
-        Column(
-            Modifier
-                .shadow(5.dp)
-                .background(Color.White)
-        ) {
+        Column() {
 
             Column(
-                Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp),
+                Modifier
+                    .shadow(5.dp)
+                    .background(Color.White)
             ) {
-                Text(
-                    header, style = MaterialTheme.typography.h2, modifier = Modifier
 
-                )
-                Text(
-                    "${months[calendar.get(Calendar.MONTH)]} ${calendar.get(Calendar.YEAR)}",
-                    style = MaterialTheme.typography.body1,
-                    color = Color.Gray
-
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
+                    Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp),
                 ) {
+                    Text(
+                        header, style = MaterialTheme.typography.h2, modifier = Modifier
 
-                    Icon(
-                        Icons.Outlined.ArrowBack,
-                        contentDescription = "back",
-                        modifier = Modifier.clickable(onClick = {
-                            calendar.add(Calendar.DATE, -7)
-                            lessons = Lessons()
-                            isUpdated = false
-                            coroutineScope.launch {
-                                pagerState.scrollToPage(1)
-                                pagerState.scrollToPage(0)
-                            }
-
-                        })
                     )
+                    Text(
+                        "${months[calendar.get(Calendar.MONTH)]} ${calendar.get(Calendar.YEAR)}",
+                        style = MaterialTheme.typography.body1,
+                        color = Color.Gray
 
-
-                    val daysOfWeek = listOf(
-                        "Mo", "Tu", "Th", "We", "Fr", "Sa"
                     )
+                    Spacer(Modifier.height(10.dp))
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
 
-                    for (i in 2..7) {
-
-                        var modifier: Modifier = Modifier
-                        if (pagerState.currentPage == i - 2) modifier = Modifier.border(
-                            border = BorderStroke(1.dp, Blue200),
-                            shape = RoundedCornerShape(10.dp)
+                        Icon(
+                            Icons.Outlined.ArrowBack,
+                            contentDescription = "back",
+                            modifier = Modifier.clickable(onClick = {
+                                lessons = Lessons()
+                                coroutineScope.launch {
+                                    calendar.add(Calendar.DATE, -7)
+                                    pagerState.scrollToPage(1)
+                                    pagerState.scrollToPage(0)
+                                    isUpdated = false
+                                }
+                            })
                         )
 
-                        Column(
-                            modifier = modifier
-                                .padding(10.dp)
-                                .clickable(onClick = {
 
-                                    coroutineScope.launch {
+                        val daysOfWeek = listOf(
+                            "Mo", "Tu", "Th", "We", "Fr", "Sa"
+                        )
 
-                                        calendar.add(
-                                            Calendar.DATE,
-                                            i - calendar.get(Calendar.DAY_OF_WEEK)
-                                        )
-                                        pagerState.animateScrollToPage(i - 2)
+                        for (i in 2..7) {
 
-                                    }
-
-                                })
-                        ) {
-
-                            Text(
-                                daysOfWeek[i - 2],
-                                style = MaterialTheme.typography.body1,
-                                modifier = Modifier
-
+                            var modifier: Modifier = Modifier
+                            if (pagerState.currentPage == i - 2) modifier = Modifier.border(
+                                border = BorderStroke(1.dp, Blue200),
+                                shape = RoundedCornerShape(10.dp)
                             )
 
-                            val temp = i - calendar.get(Calendar.DAY_OF_WEEK)
-                            calendar.add(Calendar.DATE, temp)
+                            Column(
+                                modifier = modifier
+                                    .padding(10.dp)
+                                    .clickable(onClick = {
 
-                            Text(
-                                text = (calendar.get(Calendar.DAY_OF_MONTH)).toString(),
-                                style = MaterialTheme.typography.body1,
-                                color = Color.Black
-                            )
+                                        coroutineScope.launch {
 
-                            calendar.add(Calendar.DATE, -temp)
+                                            calendar.add(
+                                                Calendar.DATE,
+                                                i - calendar.get(Calendar.DAY_OF_WEEK)
+                                            )
+                                            pagerState.animateScrollToPage(i - 2)
+
+                                        }
+
+                                    })
+                            ) {
+
+                                Text(
+                                    daysOfWeek[i - 2],
+                                    style = MaterialTheme.typography.body1,
+                                    modifier = Modifier
+
+                                )
+
+                                val temp = i - calendar.get(Calendar.DAY_OF_WEEK)
+                                calendar.add(Calendar.DATE, temp)
+
+                                Text(
+                                    text = (calendar.get(Calendar.DAY_OF_MONTH)).toString(),
+                                    style = MaterialTheme.typography.body1,
+                                    color = Color.Black
+                                )
+
+                                calendar.add(Calendar.DATE, -temp)
+
+                            }
 
                         }
 
+                        Icon(
+                            Icons.Default.ArrowForward,
+                            contentDescription = "forward",
+                            modifier = Modifier.clickable(onClick = {
+                                calendar.add(Calendar.DATE, 7)
+                                lessons = Lessons()
+                                coroutineScope.launch {
+                                    pagerState.scrollToPage(1)
+                                    pagerState.scrollToPage(0)
+                                    isUpdated = false
+                                }
+                            })
+                        )
+
                     }
 
-                    Icon(
-                        Icons.Default.ArrowForward,
-                        contentDescription = "forward",
-                        modifier = Modifier.clickable(onClick = {
-                            calendar.add(Calendar.DATE, 7)
-                            lessons = Lessons()
-                            isUpdated = false
-                            coroutineScope.launch {
-                                pagerState.scrollToPage(1)
-                                pagerState.scrollToPage(0)
-                            }
-                        })
-                    )
-
+                    Spacer(Modifier.height(10.dp))
                 }
 
-                Spacer(Modifier.height(10.dp))
             }
 
-        }
 
+            HorizontalPager(
+                count = 6,
+                state = pagerState,
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.wrapContentHeight()
+            ) { i ->
 
-        HorizontalPager(
-            count = 6,
-            state = pagerState,
-            verticalAlignment = Alignment.Top,
-            modifier = Modifier.wrapContentHeight()
-        ) { i ->
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                when (i) {
-                    0 -> LessonsList(navController, lessons.mo)
-                    1 -> LessonsList(navController, lessons.tu)
-                    2 -> LessonsList(navController, lessons.th)
-                    3 -> LessonsList(navController, lessons.fr)
-                    4 -> LessonsList(navController, lessons.sa)
-                    5 -> LessonsList(navController, lessons.su)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when (i) {
+                        0 -> LessonsList(navController, lessons.mo)
+                        1 -> LessonsList(navController, lessons.tu)
+                        2 -> LessonsList(navController, lessons.th)
+                        3 -> LessonsList(navController, lessons.fr)
+                        4 -> LessonsList(navController, lessons.sa)
+                        5 -> LessonsList(navController, lessons.su)
+                    }
                 }
-            }
 
+            }
         }
     }
-}
 
 }
 
@@ -460,7 +453,6 @@ fun NavigationBottomBar(
                 pagerState.animateScrollToPage(calendar.get(Calendar.DAY_OF_WEEK) - 2)
             }
 
-
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -494,7 +486,14 @@ fun NavigationBottomBar(
 
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(onClick = {
+                if(Network.groupId!=null) {
+                    lessons = Lessons()
+                    navController.navigate("main_screen/group/${Network.groupId}")
+                }
+             }))
+            {
             Icon(
                 Icons.Filled.Home, contentDescription = "Home", modifier = Modifier.size(25.dp)
             )

@@ -27,10 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.schedule.SearchMenu
-import com.example.schedule.data.Classroom
-import com.example.schedule.data.Group
-import com.example.schedule.data.Teacher
-import com.example.schedule.data.rememberSearchMenuStateHolder
+import com.example.schedule.data.*
 import com.example.schedule.network.Network
 import com.example.schedule.ui.theme.Blue200
 import com.example.schedule.ui.theme.ScheduleTheme
@@ -198,8 +195,9 @@ fun ScheduleChooser(navController: NavController) {
 
                 Button(
                     onClick = {
-                                if(Network.groupId!=null)
-                              navController.navigate("main_screen/group/${Network.groupId}")
+                        lessons = Lessons()
+                        if (Network.groupId != null)
+                            navController.navigate("main_screen/group/${Network.groupId}")
                     },
                     Modifier
                         .width(100.dp)
@@ -240,8 +238,9 @@ fun ScheduleChooser(navController: NavController) {
 
                 Button(
                     onClick = {
-                        if(Network.groupId!=null)
-                        navController.navigate("main_screen/teacher/${Network.groupId}")
+                        lessons = Lessons()
+                        if (Network.groupId != null)
+                            navController.navigate("main_screen/teacher/${Network.groupId}")
                     },
                     Modifier
                         .width(100.dp)
@@ -282,8 +281,9 @@ fun ScheduleChooser(navController: NavController) {
 
                 Button(
                     onClick = {
-                        if(Network.groupId!=null)
-                        navController.navigate("main_screen/classroom/${Network.groupId}")
+                        lessons = Lessons()
+                        if (Network.groupId != null)
+                            navController.navigate("main_screen/classroom/${Network.groupId}")
                     },
                     Modifier
                         .width(100.dp)

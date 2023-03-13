@@ -54,13 +54,13 @@ fun MenuScreen(navController: NavController) {
                     )
             )
 
-            if(Network.email!=null)
-            Text(
-                Network.email.toString(), style = MaterialTheme.typography.h2,
-                modifier = Modifier.clickable(onClick = {
-                    navController.navigate("profile_screen")
-                })
-            )
+            if (Network.email != null)
+                Text(
+                    Network.email.toString(), style = MaterialTheme.typography.h2,
+                    modifier = Modifier.clickable(onClick = {
+                        navController.navigate("profile_screen")
+                    })
+                )
 
         }
         Spacer(modifier = Modifier.height(100.dp))
@@ -72,21 +72,22 @@ fun MenuScreen(navController: NavController) {
         ScheduleChooser(navController)
         Spacer(Modifier.weight(1f))
 
-        if(Network.email!=null)
-        Text(
-            "Log out",
-            color = Color.Red,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
-            ),
-            modifier = Modifier
-                .clickable(onClick = {
-                    coroutineScope.launch{
-                        AuthRepository().logout()
-                    }
-                    navController.navigate("start_screen") })
-        )
+        if (Network.email != null)
+            Text(
+                "Log out",
+                color = Color.Red,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier
+                    .clickable(onClick = {
+                        coroutineScope.launch {
+                            AuthRepository().logout()
+                        }
+                        navController.navigate("start_screen")
+                    })
+            )
         else
             Text(
                 "Sign In",
@@ -97,7 +98,8 @@ fun MenuScreen(navController: NavController) {
                 ),
                 modifier = Modifier
                     .clickable(onClick = {
-                        navController.navigate("signIn_screen") })
+                        navController.navigate("signIn_screen")
+                    })
             )
 
     }
